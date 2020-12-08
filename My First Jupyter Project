@@ -1,0 +1,269 @@
+# My First Data Science Project
+---
+In the code below, we will:
+
+- Define a function named add_value(), which takes in as an input a parameter x, and returns x + 30
+- Assign the integer 20 to a variable named val
+- Assign the result of add_value(val) to a variable named result
+- Print result    
+
+def add_value(x):
+    return x + 30
+val = 20
+
+result = add_value(val)
+
+print(result)
+
+#import libraries
+import pandas as pd
+from csv import reader
+
+pwd #location of saved files
+
+
+file_name = pd.read_csv(r'C:\Users\detri\Documents\Jupyter Projects\AppleStore.csv')
+file_name.head()
+
+import pandas as pd
+
+# Create function for opening a data file
+# If the filename is in the same folder, the location isn't needed
+def open_dataset(file_name='AppleStore.csv', header=True):
+    # Create a dataset from csv WITH header included
+    df = pd.read_csv(file_name, delimiter=',')
+    # User list comprehension to create a list of lists from Dataset rows
+    data = [list(row) for row in df.values]
+    if header:
+        # Insert Column names as first list in list of lists
+        data.insert(0, df.columns.to_list())
+        return data
+    else:
+        return data
+
+# Open the default AppleStore.csv file and keep the header
+all_data = open_dataset(header=True)
+# Set the header data to variable named header
+header = all_data[0]
+# Set the rest of the data to the variable named apps_data
+apps_data = all_data[1:]
+
+print(header)
+print("----------")
+print(apps_data[0:4])
+
+In the code above:
+- Data from the AppleStore was opened and read
+- The "header" or names of the columns was set to a variable named 'header'
+- All of the other information was set to a variable named 'apps_data'
+- The first 4 columns of the data was printed
+- The data set can be downloaded from https://www.kaggle.com/ramamet4/app-store-apple-data-set-10k-apps/
+
+| **Column name** | **Description** |
+|---|:---|
+| "id" | App ID |
+| "track_name" | App Name |
+| "size_bytes" | Size (in Bytes) |
+| "currency" | Currency Type |
+| "price" | Price of App |
+| "rating_count_tot" | Total # of ratings (for all versions) |
+| "rating_count_ver" | Total # of ratings (for current version) |
+| "user_rating" | User Rating Value (for all versions) |
+| "user_rating_ver" | User Rating Value (for current version) |
+| "ver" | Latest App Version |
+| "cont_rating" | Content Age Rating |
+| "prime_genre" | Primary Genre of App |
+| "sup_devices.num" | Number of supporting devices |
+| "ipadSc_urls.num" | Number of screenshots showed for display |
+| "lang.num" | Number of supported languages |
+| "vpp_lic" | Vpp Device Based Licensing Enabled |
+
+In code below:
+- Data from the AppleStore was opened and read
+- The "header" or names of the columns was set to a variable named 'header'
+- All of the other information was set to a variable named 'apps_data'
+---
+- Calculated the overall average ratings for all apps
+- Calculated the avergage ratings for all and current version free apps
+- Calculated the avergage ratings for all and current version paid apps
+- Calculated the average price of the paid apps
+---
+- Calculated the overall app size in bytes, converted to MB
+- Calculated the largest and smallest free apps size available
+- Calculated the largest and smallest paid apps size available
+---
+- Calculated the number of apps per asge ratings for all apps
+- Calculated the number of apps per asge ratings for all free apps
+- Calculated the number of apps per asge ratings for all paid apps
+
+
+import pandas as pd
+
+# Create function for opening a data file
+# If the filename is in the same folder, the location isn't needed
+def open_dataset(file_name='AppleStore.csv', header=True):
+    # Create a dataset from csv WITH header included
+    df = pd.read_csv(file_name, delimiter=',')
+    # User list comprehension to create a list of lists from Dataset rows
+    data = [list(row) for row in df.values]
+    if header:
+        # Insert Column names as first list in list of lists
+        data.insert(0, df.columns.to_list())
+        return data
+    else:
+        return data
+
+# Open the default AppleStore.csv file and keep the header
+all_data = open_dataset(header=True)
+# Set the header data to variable named header
+header = all_data[0]
+# Set the rest of the data to the variable named apps_data
+apps_data = all_data[1:]
+total_length = len(apps_data)
+#print(total_length) #7197
+
+# All the starting lists and variables
+all_ratings = 0
+free_apps_ratings = []
+free_apps_ratings_cur = []
+paid_apps_ratings = []
+paid_apps_ratings_cur = []
+price_of_apps = 0
+all_apps_size = 0
+free_apps_size = []
+paid_apps_size = []
+content_ratings = {"4+":0, "9+":0, "12+":0, "17+":0}
+free_content_ratings = {"4+":0, "9+":0, "12+":0, "17+":0}
+paid_content_ratings = {"4+":0, "9+":0, "12+":0, "17+":0}
+
+# Setting data to lists and variables
+for row in apps_data:
+    size = float(row[2])
+    overall_rating = float(row[7])
+    current_rating = float(row[8])
+    price = float(row[4])
+    c_rating = row[10]
+    all_ratings = all_ratings + overall_rating
+    all_apps_size = all_apps_size + size
+    
+    if price == 0.0:
+        free_apps_ratings.append(overall_rating)
+        free_apps_ratings_cur.append(current_rating)
+        free_apps_size.append(size)
+        if (c_rating in content_ratings) == True:
+            free_content_ratings[c_rating] += 1
+        else:
+            free_content_ratings[c_rating] = 1
+    else:
+        paid_apps_ratings.append(overall_rating)
+        paid_apps_ratings_cur.append(current_rating)
+        price_of_apps = price_of_apps + price
+        paid_apps_size.append(size)
+        if (c_rating in content_ratings) == True:
+            paid_content_ratings[c_rating] += 1
+        else:
+            paid_content_ratings[c_rating] = 1
+            
+    if (c_rating in content_ratings) == True:
+        content_ratings[c_rating] += 1
+    else:
+        content_ratings[c_rating] = 1
+
+print("Overall number of apps:", total_length)
+
+avg_overall_rating = all_ratings/total_length
+print("Overall average ratings for all apps:", round(avg_overall_rating,2))
+print("------------")
+avg_overall_free_apps_ratings = sum(free_apps_ratings)/len(free_apps_ratings)
+print("Overall free apps average ratings:", round(avg_overall_free_apps_ratings,2))
+
+avg_current_free_apps_ratings = sum(free_apps_ratings_cur)/len(free_apps_ratings_cur)
+print("Current version, free apps average ratings:", round(avg_current_free_apps_ratings,2))
+print("------------")
+avg_overall_paid_apps_ratings = sum(paid_apps_ratings)/len(paid_apps_ratings)
+print("Overall paid apps average ratings:", round(avg_overall_paid_apps_ratings,2))
+
+avg_current_paid_apps_ratings = sum(paid_apps_ratings_cur)/len(paid_apps_ratings_cur)
+print("Current version, paid apps average ratings:", round(avg_current_paid_apps_ratings,2))
+
+avg_overall_price = price_of_apps/len(paid_apps_ratings)
+print("Overall average price, of paid apps: $", round(avg_overall_price,2))
+print("------------")
+
+free_or_paid = ""
+if avg_overall_free_apps_ratings > avg_overall_paid_apps_ratings:
+    free_or_paid = "Free apps"
+else:
+    free_or_paid = "Paid apps"
+    
+print(free_or_paid, "have a higher overall rating.")
+print("------------")
+
+avg_apps_size = all_apps_size/total_length
+print("The overall average app size to download is:", round(avg_apps_size/1000000, 2), "MB")
+print("------------")
+
+avg_free_apps_size = sum(free_apps_size)/len(free_apps_size)
+print("The average free app size to download is:", round(avg_free_apps_size/1000000, 2), "MB")
+
+free_max = round(max(free_apps_size)/100000, 2)
+print("The largest size is:", free_max , "MB, or", round(free_max/1000, 2), "GB")
+free_min = round(min(free_apps_size)/100000, 2)
+print("The smallest size is:", free_min , "MB")
+
+print("------------")
+avg_paid_apps_size = sum(paid_apps_size)/len(paid_apps_size)
+print("The average paid app size to download is:", round(avg_paid_apps_size/1000000, 2), "MB")
+
+paid_max = round(max(paid_apps_size)/100000, 2)
+print("The largest size is:", paid_max , "MB, or", round(paid_max/1000, 2), "GB")
+paid_min = round(min(paid_apps_size)/100000, 2)
+print("The smallest size is:", paid_min , "MB")
+print("------------")
+
+#print(content_ratings)
+print("The age ratings for all apps: 4+", content_ratings["4+"], "/ 9+", content_ratings["9+"], "/ 12+", content_ratings["12+"], "/ 17+", content_ratings["17+"])
+#print(free_content_ratings)
+print("The age ratings for free apps: 4+", free_content_ratings["4+"], "/ 9+", free_content_ratings["9+"], "/ 12+", free_content_ratings["12+"], "/ 17+", free_content_ratings["17+"])
+#print(paid_content_ratings)
+print("The age ratings for paid apps: 4+", paid_content_ratings["4+"], "/ 9+", paid_content_ratings["9+"], "/ 12+", paid_content_ratings["12+"], "/ 17+", paid_content_ratings["17+"])
+
+
+| **Description** | **Number** |
+|:---|:---|
+|Overall Number of Apps|7197|
+|Overall avg. ratings|3.53|
+|||
+|Overall avg. free app ratings|3.38|
+|Current ver. avg. free app ratings|3.06|
+|||
+|Overall avg. paid app ratings|3.72|
+|Current ver. avg. paid app ratings|3.5|
+|Overall avg. price|$3.96|
+|||
+|Overall avg. app size|199.13 MB|
+|Avg. free app size|147.94 MB|
+|Largest free app size|31.48 GB|
+|Smallest free app size|7.67 MB|
+|||
+|Avg. paid app size|265.25 MB|
+|Largest paid app size|40.26 GB|
+|Smallest paid app size|5.9 MB|
+|||
+|**Number of apps per age rating**|
+|4+|8870|
+|9+|1977|
+|12+|2314|
+|17+|1244|
+|||
+|**Number of free apps per age rating**|
+|4+|2470|
+|9+|441|
+|12+|709|
+|17+|447|
+|||
+|**Number of paid apps per age rating**|
+|4+|1967|
+|9+|549|
+|12+|450|
+|17+|175|
